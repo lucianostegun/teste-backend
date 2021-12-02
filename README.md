@@ -72,4 +72,3 @@ Crie endpoints para as seguintes ações:
 - Caso tenha alguma dúvida, tome uma decisão e explique no PR
 - Testes são sempre bem-vindos :smiley:
 - Fique à vontade para utilizar GraphQL ao invés de Rest
-- Caso não queira abrir PR, enviar o repositório comprimido para o email: `natan@skore.io`
