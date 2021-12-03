@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { MediasModule } from './medias/medias.module';
 
 @Module({
-  imports: [],
+  imports: [MediasModule],
   controllers: [],
   providers: [],
 })
