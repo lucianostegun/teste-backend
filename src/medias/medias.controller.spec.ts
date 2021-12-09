@@ -1,14 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Mockbase } from '../mockbase';
 import { CreateMediaDto } from './dto/create-media.dto';
-import { Media } from './entities/media.entity';
+import { MediaEntity } from './entities/media.entity';
 import { MediasController } from './medias.controller';
 import { MediasService } from './medias.service';
+import * as source from './spec.source.json';
 
-const mediaEntityList = [
-  new Media({id: 1, name: 'Matrix', expires_at: 1638499119394, watched: false, expired: false}),
-  new Media({id: 2, name: 'ToyStory', expires_at: 1938499119394, watched: false, expired: false}),
-  new Media({id: 3, name: 'Forrest Gump', expires_at: 1638499119394, watched: false, expired: false}),
+const mediaEntityList : MediaEntity[] = [
+  new MediaEntity(source.correct[0]),
+  new MediaEntity(source.correct[1]),
+  new MediaEntity(source.correct[2]),
+  new MediaEntity(source.correct[3]),
 ];
 
 describe('MediasController', () => {
@@ -35,7 +37,7 @@ describe('MediasController', () => {
       // Arrange
       
       // Act
-      const result = await mediaController.findAll();
+      const result : MediaEntity[] = await mediaController.findAll();
       
       // Assert
       expect(result).toEqual([]);
@@ -51,14 +53,14 @@ describe('MediasController', () => {
       let createMediaDto = new CreateMediaDto();
       Object.assign(createMediaDto, mediaEntityList[0]);
       let resultCreate = await mediaController.create(createMediaDto);
-      expect(resultCreate).toEqual(undefined);
+      expect(resultCreate).toEqual(mediaEntityList[0]);
 
       createMediaDto = new CreateMediaDto();
       Object.assign(createMediaDto, mediaEntityList[1]);
       resultCreate = await mediaController.create(createMediaDto);
-      expect(resultCreate).toEqual(undefined);
+      expect(resultCreate).toEqual(mediaEntityList[1]);
       
-      const resultFindAll = await mediaController.findAll();
+      const resultFindAll : MediaEntity[] = await mediaController.findAll();
       
       // Assert
       expect(resultFindAll).toEqual([mediaEntityList[0], mediaEntityList[1]]);
@@ -71,20 +73,20 @@ describe('MediasController', () => {
       // Arrange
       
       // Act
-      let createMediaDto = new CreateMediaDto();
-      Object.assign(createMediaDto, mediaEntityList[0]);
+      let createMediaDto : CreateMediaDto = new CreateMediaDto();
+      Object.assign(createMediaDto, mediaEntityList[3]);
       let resultCreate = await mediaController.create(createMediaDto);
-      expect(resultCreate).toEqual(undefined);
+      expect(resultCreate).toEqual(mediaEntityList[3]);
       
       createMediaDto = new CreateMediaDto();
       Object.assign(createMediaDto, mediaEntityList[1]);
       resultCreate = await mediaController.create(createMediaDto);
       
-      let resultFindOne = await mediaController.findOne('1');
+      let resultFindOne : MediaEntity = await mediaController.findOne('4');
       expect(resultFindOne).toHaveProperty('watched', false);
       expect(resultFindOne).toHaveProperty('expired', true);
       
-      resultFindOne = await mediaController.findOne('1');
+      resultFindOne = await mediaController.findOne('4');
       expect(resultFindOne).toHaveProperty('watched', true);
       expect(resultFindOne).toHaveProperty('expired', true);
       
@@ -99,10 +101,10 @@ describe('MediasController', () => {
       // Arrange
       
       // Act
-      let createMediaDto = new CreateMediaDto();
+      let createMediaDto : CreateMediaDto = new CreateMediaDto();
       Object.assign(createMediaDto, mediaEntityList[0]);
       let resultCreate = await mediaController.create(createMediaDto);
-      expect(resultCreate).toEqual(undefined);
+      expect(resultCreate).toEqual(mediaEntityList[0]);
       
       let resultFindOne = await mediaController.findOne('1');
       expect(resultFindOne).toHaveProperty('watched', false);

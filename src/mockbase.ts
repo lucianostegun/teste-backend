@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Media } from './medias/entities/media.entity';
+import { MediaEntity } from './medias/entities/media.entity';
+import { MockbaseException } from './mockbase-exception';
 
 /**
  * @author Luciano Stegun
@@ -12,72 +13,75 @@ import { Media } from './medias/entities/media.entity';
 @Injectable()
 export class Mockbase {
   
-  private recordCollection: Media[] = [];
+  private recordCollection: MediaEntity[] = [];
   private records: number = 0;
 
   public count(): number {
     return this.records;
   }
 
-  public insert(record: Media): boolean {
+  public async insert(record: MediaEntity): Promise<MediaEntity> {
 
     let recordId: number;
 
     try {
-      recordId = this.find(record.id).id;
-    } catch (err){}
-    finally {
-      if (recordId) {
-        throw 'Media exists';
+      recordId = (await this.find(record.id)).id;
+    } catch (err){
+    }finally {
+      /**
+       * Se dentro do finally a variável recordId possuir um valor
+       * vamos considerar que um registro foi encontrado e retornar um exception
+       */
+      if (recordId !== undefined) {
+        throw new MockbaseException(MockbaseException.TYPE_RECORD_EXISTS);
       }
     }
 
     this.recordCollection.push(record);
     this.records++;
 
-    return true;
+    return Promise.resolve(record);
   }
 
-  public update(id: number, record: Media): Media {
+  public update(id: number, record: MediaEntity): Promise<MediaEntity> {
 
     let index = this.recordCollection.findIndex(record => record.id == id);
 
     if (index == -1) {
-      throw 'Not found';
+      throw new MockbaseException(MockbaseException.TYPE_RECORD_NOT_FOUND);
     }
 
     this.recordCollection[index] = Object.assign(this.recordCollection[index], record);
     
-    return this.recordCollection[index];
+    return Promise.resolve(this.recordCollection[index]);
   }
 
-  public all(): Media[] {
-
-    return this.recordCollection;
+  public all(): Promise<MediaEntity[]> {
+    return Promise.resolve(this.recordCollection);
   }
 
-  public find(id: number): Media {
+  public find(id: number): Promise<MediaEntity> {
 
     let record = this.recordCollection.find(record => record.id == id);
 
     if (!record) {
-      throw 'Not found';
+      throw new MockbaseException(MockbaseException.TYPE_RECORD_NOT_FOUND);
     }
 
-    return record;
+    return Promise.resolve(record);
   }
 
-  public delete(id: number): boolean {
+  public delete(id: number): Promise<boolean> {
 
     let index = this.recordCollection.findIndex(record => record.id == id);
 
     if (index == -1) {
-      throw 'Not found';
+      throw new MockbaseException(MockbaseException.TYPE_RECORD_NOT_FOUND);
     }
 
     this.recordCollection.splice(index, 1);
     this.records--;
 
-    return true;
+    return Promise.resolve(true);
   }
 }

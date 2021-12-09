@@ -1,4 +1,4 @@
-export class Media {
+export class MediaEntity {
   id: number;
   name: string;
   duration: number;
@@ -14,6 +14,10 @@ export class Media {
 
     if (!props.hasOwnProperty('watched')) {
       this.watched = false;
+    }
+
+    if (!props.hasOwnProperty('expired')) {
+      this.expired = false;
     }
   }
 }

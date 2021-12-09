@@ -1,11 +1,13 @@
-import { Media } from './medias/entities/media.entity';
+import { MediaEntity } from './medias/entities/media.entity';
 import { Mockbase } from './mockbase';
+import * as source from './medias/spec.source.json';
+import { MockbaseException } from './mockbase-exception';
 
-const mockbase = new Mockbase();
-const recordList = [
-  new Media({id: '1', name: 'Matrix'}),
-  new Media({id: '2', name: 'Toy Story'}),
-  new Media({id: '3', name: 'Forrest Gump'}),
+const mockbase : Mockbase = new Mockbase();
+const recordList : MediaEntity[] = [
+  new MediaEntity(source.correct[0]),
+  new MediaEntity(source.correct[1]),
+  new MediaEntity(source.correct[2]),
 ];
 
 describe('Mockbase', () => {
@@ -13,45 +15,45 @@ describe('Mockbase', () => {
     expect(mockbase).toBeDefined();
   });
 
-  it('should be empty', () => {
-    expect(mockbase.all()).toEqual([]);
+  it('should be empty', async () => {
+    expect(await mockbase.all()).toEqual([]);
     expect(mockbase.count()).toEqual(0);
   });
   
-  it('should create a record', () => {
+  it('should create a record', async () => {
     
-    const resultInsert = mockbase.insert(new Media(recordList[0]));
+    const resultInsert = await mockbase.insert(new MediaEntity(recordList[0]));
     
     expect(resultInsert).toBeTruthy();
     expect(mockbase.count()).toEqual(1);
   });
 
-  it('should not be empty', () => {
-    expect(mockbase.all()).toEqual([recordList[0]]);
+  it('should not be empty', async () => {
+    expect(await mockbase.all()).toEqual([recordList[0]]);
     expect(mockbase.count()).toEqual(1);
   });
 
-  it('should return single instance of Media', () => {
+  it('should return single instance of MediaEntity', async () => {
 
-    const resultFind = mockbase.find(1);
+    const resultFind = await mockbase.find(1);
 
     expect(resultFind).toBeDefined();
     expect(typeof resultFind).toEqual('object');
     expect(resultFind).toEqual(recordList[0]);
   });
 
-  it('should return a exception', () => {
+  it('should return an exception', () => {
 
     const resultFind = () => {
-      mockbase.find(2)
+      mockbase.find(999)
     };
 
-    expect(resultFind).toThrowError()
+    expect(resultFind).toThrowError(MockbaseException);
   });
 
-  it('should update a stored instance of Media', () => {
+  it('should update a stored instance of MediaEntity', async () => {
 
-    let record : Media = mockbase.find(1);
+    let record : MediaEntity = await mockbase.find(1);
 
     record.name = 'Brave';
 
@@ -67,9 +69,9 @@ describe('Mockbase', () => {
     expect(resultFind).not.toEqual(recordList[0]);
   });
 
-  it('should delete a stored instance of Media', () => {
+  it('should delete a stored instance of MediaEntity', async () => {
 
-    const resultDelete = mockbase.delete(1);
+    const resultDelete = await mockbase.delete(1);
     
     expect(resultDelete).toBeTruthy();
     expect(mockbase.count()).toEqual(0);
@@ -78,6 +80,6 @@ describe('Mockbase', () => {
       mockbase.find(1)
     };
 
-    expect(resultFind).toThrowError();
+    expect(resultFind).toThrowError(MockbaseException);
   });
 });

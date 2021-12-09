@@ -1,45 +1,103 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { MockbaseException } from '../mockbase-exception';
 import { Mockbase } from '../mockbase';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
-import { Media } from './entities/media.entity';
+import { MediaEntity } from './entities/media.entity';
+import { _ } from 'lodash';
 
+/**
+ * @author Luciano Stegun
+ * CRUD padrão que utiliza a classe Mockbase para armazenar as informações em memória
+ */
 @Injectable()
 export class MediasService {
   
   constructor(
-    private mockbase: Mockbase
+    private readonly mockbase: Mockbase
   ){}
 
-  create(createMediaDto: CreateMediaDto) {
-    createMediaDto.watched = false;
-    createMediaDto.expired = false;
+  async create(createMediaDto: CreateMediaDto) {
+
+    let media = new MediaEntity(createMediaDto);
     
-    this.mockbase.insert(new Media(createMediaDto));
+    try {
+      await this.mockbase.insert(media);
+    } catch (err) {
+      if (typeof(err) == 'object' && err instanceof MockbaseException && err.isType(MockbaseException.TYPE_RECORD_EXISTS)) {
+        throw new BadRequestException(`Item ${createMediaDto.id} already exists`);
+      } else {
+        throw new InternalServerErrorException(`Unexpected error while saving record`);
+      }
+    }
+
+    return media;
   }
 
-  findAll() {
-    return this.mockbase.all();
+  async findAll() {
+    try {
+      return await this.mockbase.all();
+    } catch (err) {
+      throw new InternalServerErrorException(`Unexpected error while searching records`);
+    }
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     
-    const record = {... this.mockbase.find(id)};
+    /**
+     * @author Luciano Stegun
+     * Aqui estou utilizando lodash.clone para criar uma cópia do objeto que é retornado do repositório
+     * pois se utilizar o objeto direto a informação do campo "watched" irá sempre retornar "true"
+     * já que pelo uso de referêcia do javascript essa informação será sobrescrita após a atualização
+     * do registro no repositório.
+     */
+    let record;
+
+    try {
+      record = _.clone(await this.mockbase.find(id));
+    } catch (err) {
+      if (typeof(err) == 'object' && err instanceof MockbaseException && err.isType(MockbaseException.TYPE_RECORD_NOT_FOUND)) {
+        throw new NotFoundException(`Item ${id} not found`);
+      } else {
+        throw new InternalServerErrorException(`Unexpected error while finding record`);
+      }
+    }
 
     record.expired = (new Date(record.expires_at)) < (new Date());
     
-    this.mockbase.update(id, new Media({watched: true}))
+    if (!record.watched) {
+      this.mockbase.update(id, new MediaEntity({watched: true}))
+    }
 
     return record;
   }
 
-  update(id: number, updateMediaDto: UpdateMediaDto) {
-    updateMediaDto.watched = false;
-    delete updateMediaDto.id;
-    this.mockbase.update(id, new Media(updateMediaDto));
+  async update(id: number, updateMediaDto: UpdateMediaDto) {
+    
+    let media: MediaEntity = new MediaEntity(updateMediaDto);
+    media.watched = false;
+
+    try {
+      delete updateMediaDto.id;
+      return await this.mockbase.update(id, media);
+    } catch (err) {
+      if (typeof(err) == 'object' && err instanceof MockbaseException && err.isType(MockbaseException.TYPE_RECORD_NOT_FOUND)) {
+        throw new NotFoundException(`Item ${id} not found`);
+      } else {
+        throw new InternalServerErrorException(`Unexpected error while updating record`);
+      }
+    }
   }
 
-  remove(id: number) {
-    this.mockbase.delete(id);
+  async remove(id: number) {
+    try {
+      await this.mockbase.delete(id);
+    } catch (err) {
+      if (typeof(err) == 'object' && err instanceof MockbaseException && err.isType(MockbaseException.TYPE_RECORD_NOT_FOUND)) {
+        throw new NotFoundException(`Item ${id} not found`);
+      } else {
+        throw new InternalServerErrorException(`Unexpected error while deleting record`);
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { MediasService } from './medias.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
@@ -8,7 +8,8 @@ export class MediasController {
   constructor(private readonly mediasService: MediasService) {}
 
   @Post()
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   create(@Body() createMediaDto: CreateMediaDto) {
     return this.mediasService.create(createMediaDto);
   }
