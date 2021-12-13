@@ -6,6 +6,7 @@ import { MediasService } from './medias.service';
 import * as source from './spec.source.json';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { MockbaseException } from '../mockbase-exception';
+import { _ } from 'lodash';
 
 const mediaEntityList : MediaEntity[] = [
   new MediaEntity(source.correct[0]),
@@ -70,11 +71,25 @@ describe('MediasService', () => {
   describe('findOne', () => {
     it('should return a single instance of media successfuly', async () => {
       // Act
-      const result = await mediaService.findOne(1);
+      const resultOnce = await mediaService.findOne(1);
 
       // Assert
-      expect(result).toEqual(mediaEntityList[0]);
+      expect(resultOnce).toEqual(mediaEntityList[0]);
+      expect(resultOnce).toHaveProperty('watched', false);
       expect(mockbase.find).toHaveBeenCalledTimes(1);
+      expect(mockbase.update).toHaveBeenCalledTimes(1);
+      
+      // Arrange
+      let mediaUpdated = _.clone(mediaEntityList[0]);
+      mediaUpdated.watched = true;
+      jest.spyOn(mockbase, 'find').mockResolvedValueOnce(mediaUpdated);
+
+      // Act
+      const resultTwice = await mediaService.findOne(1);
+
+      // Assert
+      expect(resultTwice).not.toEqual(mediaEntityList[0]);
+      expect(resultTwice).toHaveProperty('watched', true);
     });
 
     it('should return an exception', () => {
@@ -111,10 +126,10 @@ describe('MediasService', () => {
     it('should update a media successfuly', async () => {
       // Act
       const createMediaDto : CreateMediaDto = source.correct[0];
-      const result = await mediaService.update(createMediaDto.id, createMediaDto);
+      const resultOnce = await mediaService.update(createMediaDto.id, createMediaDto);
 
       // Assert
-      expect(result).toEqual(mediaEntityList[0]);
+      expect(resultOnce).toEqual(mediaEntityList[0]);
       expect(mockbase.update).toHaveBeenCalledTimes(1);
     });
 
