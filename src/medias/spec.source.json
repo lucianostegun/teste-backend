@@ -1,0 +1,28 @@
+{
+  "correct": [
+    {"id": 1, "name": "Matrix", "duration": 3006, "provider": "youtube", "media_type": "video", "provider_id": "UCZrtaujbQOq", "expires_at": 1639499119394},
+    {"id": 2, "name": "Toy Story", "duration": 9000, "provider": "disney", "media_type": "video", "provider_id": "pyGyOt7NHQue", "expires_at": 1639499119394},
+    {"id": 3, "name": "Forrest Gump", "duration": 9120, "provider": "prime", "media_type": "video", "provider_id": "qOsGBIp8xILo", "expires_at": 1639499119394},
+    {"id": 4, "name": "Interstellar", "duration": 10140, "provider": "netflix", "media_type": "video", "provider_id": "M7bNUvCKVw8p", "expires_at": 1638499119394}
+  ],
+  "incorrect": {
+    "missing": [
+      {"id": 1, "name": "Matrix"},
+      {"id": 2, "name": "Toy Story"},
+      {"id": 3, "name": "Forrest Gump"},
+      {"id": 4, "name": "Interstellar"}
+    ],
+    "unexpected": [
+      {"id": 1, "name": "Matrix", "duration": 3006, "provider": "youtube", "media_type": "video", "provider_id": "UCZrtaujbQOq", "expires_at": 1638499119394,"watched": false, "expired": false},
+      {"id": 2, "name": "Toy Story", "duration": 9000, "provider": "disney", "media_type": "video", "provider_id": "pyGyOt7NHQue", "expires_at": 1638499119394,"watched": false, "expired": false},
+      {"id": 3, "name": "Forrest Gump", "duration": 9120, "provider": "prime", "media_type": "video", "provider_id": "qOsGBIp8xILo", "expires_at": 1638499119394,"watched": false, "expired": false},
+      {"id": 4, "name": "Interstellar", "duration": 10140, "provider": "netflix", "media_type": "video", "provider_id": "M7bNUvCKVw8p", "expires_at": 163849911939,"watched": false, "expired": false}
+    ],
+    "type": [
+      {"id": 1, "name": "Matrix", "duration": false, "provider": "youtube", "media_type": ["video"], "provider_id": true, "expires_at": "2021-12-31 23:59:59"},
+      {"id": 2, "name": "Toy Story", "duration": "9000", "provider": "disney", "media_type": ["video"], "provider_id": null, "expires_at": "2021-12-31 23:59:59"},
+      {"id": 3, "name": "Forrest Gump", "duration": "9120", "provider": "prime", "media_type": ["video"], "provider_id": 12345, "expires_at": "2021-12-31 23:59:59"},
+      {"id": 4, "name": "Interstellar", "duration": "10140", "provider": "netflix", "media_type": ["video"], "provider_id": ["M7bNUvCKVw8p"], "expires_at": "2021-12-31 23:59:59"}
+    ]
+  }
+}
